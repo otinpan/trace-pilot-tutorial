@@ -1,0 +1,3 @@
+C++int multiply(int a, int b) {    return a * b;}
+使用例:
+C++#include <iostream>int multiply(int a, int b) {    return a * b;}int main() {    int result = multiply(3, 4);    std::cout << result << std::endl; // 12    return 0;}
