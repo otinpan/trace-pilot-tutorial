@@ -1,0 +1,109 @@
+# Record 1: file:///home/hase/trace-pilot-tutorial/src/module/parent.h
+```diff
+===================================================================
+--- parent.h (before)	snapshot
++++ parent.h (after)	idle
+@@ -11,13 +11,17 @@
+     ~Parent();
+ 
+     // 仮想関数 同じインターフェースを持つ
+     virtual void update(); // 子クラスによって上書きされる可能性がある
++
++  protected:
++    const std::vector<int>& a() const;
++
+   private:
+     // @trace-pilot 6d20499ca9643c55a7870362afb4ead2565f3c4f
+     // 可変長配列
+     std::vector<int> a_;
+   
+   protected: // 子クラスでも使用できる
+     int n_;
+     std::vector<int> b_;
+-};
+\ No newline at end of file
++};
+
+```
+
+# Record 2: file:///home/hase/trace-pilot-tutorial/src/module/parent.cpp
+```diff
+===================================================================
+--- parent.cpp (before)	snapshot
++++ parent.cpp (after)	idle
+@@ -8,8 +8,12 @@
+ }
+ 
+ Parent::~Parent()=default;
+ 
++const std::vector<int>& Parent::a() const{
++  return a_;
++}
++
+ void Parent::update(){
+   for(int i=0;i<n_;i++){
+     a_[i]=i;
+     b_[i]=i*2;
+
+```
+
+# Record 3: file:///home/hase/trace-pilot-tutorial/src/module/child.cpp
+```diff
+===================================================================
+--- child.cpp (before)	snapshot
++++ child.cpp (after)	idle
+@@ -10,13 +10,16 @@
+ 
+ 
+ void Child::update(){
+   // 基底クラスのupdateを呼び出すこともできる
+-  Parent::update(); 
++  Parent::update();
++  for(int i=0;i<n_;i++){
++    b_[i]=b_[i]*a()[i];
++  }
+ }
+ 
+ void Child::print_child(){
+   std::cout<<"n: "<<n_<<"\n";
+   for(int i=0;i<n_;i++){
+     std::cout<<"b[i] "<<b_[i]<<"\n";
+   }
+-}
+\ No newline at end of file
++}
+
+```
+
+# Record 4: file:///home/hase/trace-pilot-tutorial/build/CMakeFiles/TargetDirectories.txt
+```diff
+===================================================================
+--- TargetDirectories.txt (before)	snapshot
++++ TargetDirectories.txt (after)	create
+@@ -0,0 +1,3 @@
++/home/hase/trace-pilot-tutorial/build/CMakeFiles/tutorial.dir
++/home/hase/trace-pilot-tutorial/build/CMakeFiles/edit_cache.dir
++/home/hase/trace-pilot-tutorial/build/CMakeFiles/rebuild_cache.dir
+
+```
+
+まず既存の `Child` クラスの形を確認して、`b_` と `a_` の型に合わせて最小の変更を入れます。
+
+`a_` はいま `Parent` の private メンバーなので、`Child::update()` から直接は触れません。親側に protected の読み取り用アクセサを足して、`Child` 側では `Parent::update()` 後に `b_[i] *= a_[i]` 相当の処理を入れます。
+
+これから `parent.h` に小さなアクセサを追加し、`child.cpp` の `update()` に要素ごとの掛け算を入れます。挙動としては、親の初期更新で `a_` と `b_` を作ってから、子クラス固有の更新で `b_` を加工する流れです。
+
+変更は入りました。次にビルドして、`Child::update()` でアクセスまわりのコンパイルエラーが出ないか確認します。
+
+ビルドは通りました。最後に小さい入力で実行して、`b[i] = (i*2) * i` になっているか見ます。
+
+対応しました。
+
+`Child::update()` で `Parent::update()` を呼んだあと、各要素に対して `b_[i] = b_[i] * a()[i];` を実行するようにしました。`a_` は `Parent` の private メンバーだったので、`Child` から読めるように protected の読み取り用アクセサ `a()` も追加しています。
+
+確認済み:
+- `cmake -S . -B build`
+- `cmake --build build`
+- `printf '5\n' | build/tutorial`
+
+出力は `0, 2, 8, 18, 32` で、`b_[i] = (i*2) * i` になっています。
