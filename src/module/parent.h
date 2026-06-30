@@ -27,5 +27,4 @@ class Parent{
   protected: // 子クラスでも使用できる
     int n_;
     std::vector<int> b_;
-// @trace-pilot f6fcee3d8e46452cc812ec7f0430d2924ab12d3b
 };
