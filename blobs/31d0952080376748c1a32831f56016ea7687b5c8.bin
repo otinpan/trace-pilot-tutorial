@@ -1,0 +1,6 @@
++
++  protected:
++    const std::vector<int>& a() const;
++
+-};
++};
