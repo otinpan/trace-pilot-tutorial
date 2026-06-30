@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: src/module/parent.cpp
+
+## Open tabs:
+- parent.cpp: src/module/parent.cpp
+- child.h: src/module/child.h
+- main.cpp: src/main.cpp
+- CMakeLists.txt: CMakeLists.txt
+- .gitignore: .gitignore
+
+## My request for Codex:
+Childのupdateでb_の各要素が
+b_=b_*a_
+となるような処理を書いてください
