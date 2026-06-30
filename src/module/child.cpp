@@ -10,8 +10,6 @@ Child::~Child()=default;
 
 
 void Child::update(){
-  // 基底クラスのupdateを呼び出すこともできる
-// @trace-pilot f6fcee3d8e46452cc812ec7f0430d2924ab12d3b
   Parent::update();
   for(int i=0;i<n_;i++){
     b_[i]=b_[i]*a()[i];

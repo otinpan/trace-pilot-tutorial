@@ -9,7 +9,6 @@ Parent::Parent(int n)
 
 Parent::~Parent()=default;
 
-// @trace-pilot f6fcee3d8e46452cc812ec7f0430d2924ab12d3b
 const std::vector<int>& Parent::a() const{
   return a_;
 }
